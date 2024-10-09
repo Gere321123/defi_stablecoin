@@ -27,11 +27,14 @@ contract DSCEngine is ReentrancyGuard {
     error DSCEngine__TokenAddressesNotTheSameLengthToPriceFeedAddresses();
     error DSCEngine__NoAllowedToken();
     error DSCEngine__TransferFaild();
+    error DSCEngine__MintFaild();
+    error DSCEngine__BreaksHealthFactor(uint256 healthFactor);
 
     uint256 private constant ADDITIONAL_FEED_PRECISION = 1e10;
     uint256 private constant PRECISION = 1e18;
     uint256 private constant LIQUIDATION_THRESHOLD = 50;
     uint256 private constant LIQUIDATION_PRECISION = 100;
+    uint256 private constant MIN_HEALTH_FACTOR = 1;
 
     mapping(address token => address priceFeed) private s_priceFeeds;
     mapping(address user => mapping(address token => uint256 amount)) private s_collateralDeposited;
@@ -89,7 +92,11 @@ contract DSCEngine is ReentrancyGuard {
 
     function mintDsc(uint256 amountDscToMint) external moreThenZero(amountDscToMint) nonReentrant {
         s_DSCMinted[msg.sender] += amountDscToMint;
-        revertIfHealthFactoreIsBroken(msg.sender);
+        _revertIfHealthFactoreIsBroken(msg.sender);
+        bool minted = i_dsc.mint(msg.sender, amountDscToMint);
+        if (!minted) {
+            revert DSCEngine__MintFaild();
+        }
     }
 
     function burnDsc() external {}
@@ -104,15 +111,21 @@ contract DSCEngine is ReentrancyGuard {
         returns (uint256 totalDscMinted, uint256 collateralValueInUsd)
     {
         totalDscMinted = s_DSCMinted[user];
-        collateralvaluInUsd = getAccountCollateralValue(user);
+        collateralValueInUsd = getAccountCollateralValue(user);
     }
 
     function _healthFactor(address user) private view returns (uint256) {
         (uint256 totalDscMinted, uint256 collaterlValueInUsd) = _getAccountInformation(user);
         uint256 collateralAdjustedForThreshold = (collaterlValueInUsd * LIQUIDATION_THRESHOLD) / LIQUIDATION_PRECISION;
+        return (collateralAdjustedForThreshold * PRECISION) / totalDscMinted;
     }
 
-    function _revertIfHealthFactoreIsBroken(address user) internal view {}
+    function _revertIfHealthFactoreIsBroken(address user) internal view {
+        uint256 userhealthFactor = _healthFactor(user);
+        if (userhealthFactor < MIN_HEALTH_FACTOR) {
+            revert DSCEngine__BreaksHealthFactor(userhealthFactor);
+        }
+    }
 
     function getAccountCollateralValue(address user) public view returns (uint256 totalCollateralValueInUsd) {
         for (uint256 i = 0; i < s_collateralTokens.length; i++) {
