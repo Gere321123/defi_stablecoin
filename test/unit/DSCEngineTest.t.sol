@@ -95,4 +95,18 @@ contract DSCEngineTest is Test {
         assertEq(totalDscMinted, expectedTotalDscMinted);
         assertEq(AMOUNT_COLLATERAL, expectedDepositAmount);
     }
+
+    function testMintDSCBreaksHealthFactor() public {
+        // Mint an amount of DSC that causes health factor to break
+
+        uint256 amountDscToMint = 100 ether; // Adjust this amount to exceed the health factor
+        vm.startPrank(USER);
+
+        // Expect the mintDsc call to revert with "DSCEngine__BreaksHealthFactor"
+        vm.expectRevert(abi.encodeWithSignature("DSCEngine__BreaksHealthFactor(uint256)", 0)); // Replace 0 with expected user health factor
+
+        engine.mintDsc(amountDscToMint);
+
+        vm.stopPrank();
+    }
 }
