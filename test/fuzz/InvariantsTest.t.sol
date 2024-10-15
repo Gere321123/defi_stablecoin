@@ -35,6 +35,13 @@ contract invariantsTest is StdInvariant, Test {
         uint256 wethValue = engine.getUsdValue(weth, totalWethDeposited);
         uint256 wbtcValue = engine.getUsdValue(wbtc, totalBtcDeposited);
 
+        console.log("weth value: ", wethValue);
+        console.log("Times mint called: ", handler.timesMintIsCalled());
         assert(wethValue + wbtcValue >= totalSupply);
+    }
+
+    function invariant_gettersShouldNotRevert() public view {
+        engine.getLiquidationBonus();
+        engine.getPrecision();
     }
 }
