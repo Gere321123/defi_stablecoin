@@ -258,4 +258,16 @@ contract DSCEngine is ReentrancyGuard {
     function getHealthFactor(address user) external view returns (uint256) {
         return _healthFactor(user);
     }
+
+    function getAdditionalFeedPrecision() external pure returns (uint256) {
+        return ADDITIONAL_FEED_PRECISION;
+    }
+
+    function getLiquidationThreshold() external pure returns (uint256) {
+        return LIQUIDATION_THRESHOLD;
+    }
+
+    function getDsc() external view returns (address) {
+        return address(i_dsc);
+    }
 }

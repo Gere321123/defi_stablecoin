@@ -73,9 +73,5 @@ contract StopOnRevertInvariants is StdInvariant, Test {
         dsce.getMinHealthFactor();
         dsce.getPrecision();
         dsce.getDsc();
-        // dsce.getTokenAmountFromUsd();
-        // dsce.getCollateralTokenPriceFeed();
-        // dsce.getCollateralBalanceOfUser();
-        // getAccountCollateralValue();
     }
 }
