@@ -49,34 +49,37 @@ contract Handler is Test {
         userWithCollateralDeposited.push(msg.sender);
     }
 
-    function mintDsc(uint256 amount, uint256 addressSeed) public {
-        if (userWithCollateralDeposited.length == 0) {
-            return;
-        }
-        address sender = userWithCollateralDeposited[addressSeed % userWithCollateralDeposited.length];
-        (uint256 totalDscMinted, uint256 collateralValueInUsd) = engine.getAccountInformation(sender);
-        if ((collateralValueInUsd / 2) < totalDscMinted) {
-            return;
-        }
-        uint256 maxDscToMint = ((collateralValueInUsd / 2) - totalDscMinted);
-        amount = bound(amount, 0, uint256(maxDscToMint));
-        if (amount == 0) {
-            return;
-        }
-        vm.startPrank(sender);
-        engine.mintDsc(amount);
-        vm.stopPrank();
+    // function mintDsc(uint256 amount, uint256 addressSeed) public {
+    //     if (userWithCollateralDeposited.length == 0) {
+    //         return;
+    //     }
+    //     address sender = userWithCollateralDeposited[addressSeed % userWithCollateralDeposited.length];
+    //     (uint256 totalDscMinted, uint256 collateralValueInUsd) = engine.getAccountInformation(sender);
 
-        timesMintIsCalled++;
-    }
+    //     int256 maxDscToMint = (int256(collateralValueInUsd / 2) - int256(totalDscMinted));
+    //     if (maxDscToMint < 0) {
+    //         return;
+    //     }
+    //     amount = bound(amount, 0, uint256(maxDscToMint));
+    //     if (amount == 0) {
+    //         return;
+    //     }
+    //     vm.startPrank(sender);
+    //     engine.mintDsc(amount);
+    //     vm.stopPrank();
+
+    //     timesMintIsCalled++;
+    // }
 
     function redeemCollateral(uint256 collateralSeed, uint256 amountCollateral) public {
         ERC20Mock collateral = _getCollateralFromSeed(collateralSeed);
-        //uint256 maxCollateralToRedeem = engine.getCollateralBalanceOfUser(address(collateral), msg.sender);
-        amountCollateral = bound(amountCollateral, 0, MAX_DEPOSIT_SIZE);
+        uint256 maxCollateralToRedeem = engine.getCollateralBalanceOfUser(address(collateral), msg.sender);
+
+        amountCollateral = bound(amountCollateral, 0, maxCollateralToRedeem);
         if (amountCollateral == 0) {
             return;
         }
+        vm.prank(msg.sender);
         engine.redeemCollateral(address(collateral), amountCollateral);
     }
 

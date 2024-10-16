@@ -91,8 +91,8 @@ contract DSCEngine is ReentrancyGuard {
     function depositCollateral(address tokenCollateralAddress, uint256 amountCollateral)
         public
         moreThenZero(amountCollateral)
-        isAllowedToken(tokenCollateralAddress)
         nonReentrant
+        isAllowedToken(tokenCollateralAddress)
     {
         s_collateralDeposited[msg.sender][tokenCollateralAddress] += amountCollateral;
         emit CollateralDeposited(msg.sender, tokenCollateralAddress, amountCollateral);
