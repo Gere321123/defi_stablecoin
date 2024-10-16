@@ -13,10 +13,6 @@ import {MockV3Aggregator} from "../../mocks/MockV3Aggregator.sol";
 import {console} from "forge-std/console.sol";
 
 contract ContinueOnRevertHandler is Test {
-    // using EnumerableSet for EnumerableSet.AddressSet;
-    // using Randomish for EnumerableSet.AddressSet;
-
-    // Deployed contracts to interact with
     DSCEngine public dscEngine;
     DecentralizedStableCoin public dsc;
     MockV3Aggregator public ethUsdPriceFeed;
