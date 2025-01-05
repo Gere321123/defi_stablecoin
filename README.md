@@ -14,3 +14,4 @@ This project is a decentralized stablecoin (DSC) built on the Ethereum blockchai
 - **Testing Framework**: Foundary for testing and deployment.  
 - **Tools**: OpenZeppelin for contract security and standards.  
 
+
